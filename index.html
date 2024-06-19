@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonting with Unicode</title>
+    <meta name="description" content="A simple tool to format text using Unicode characters.">
+    <style>
+      html {
+        font-family: serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 1rem;
+        display: flex;
+        min-height: 100vh;
+        max-width: 60rem;
+        margin: 0 auto;
+        flex-direction: column;
+        box-sizing: border-box;
+      }
+
+      #textInput {
+        box-sizing: border-box;
+        width: 100%;
+        height: 10rem;
+        border: 1px solid #ccc;
+        padding: 0.6rem;
+        font-size: 1rem;
+        outline: none; 
+        resize: vertical;
+        margin-bottom: 0.5rem;
+      }
+
+      #main {
+        flex-grow: 1;
+      }
+
+      #showFontNameLabel {
+        font-size: 0.7rem;
+        padding: 0.3rem;
+        margin: 0.8rem 0;
+        display: inline-block;
+        cursor: pointer;
+        background-color: #eee;
+
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+
+        &:hover {
+          background-color: #eaeaea;
+        }
+      }
+
+      #showFontName {
+        display: none;
+      }
+
+      #showFontName:checked ~ #outputs > .output::before {
+        content: attr(data-font);
+        display: block;
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+        color: #666;
+      }
+
+      .output {
+        border: 1px solid #ccc;
+        padding: 0.6rem;
+        margin-bottom: 0.6rem;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+      }
+
+      footer {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #433737;
+        text-align: center;
+        border-top: 1px solid #ccc;
+        & > p {
+          margin: 0.7rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1 style="text-align: center;">Fonting with Unicode</h1>
+    <div id="main">
+      <textarea id="textInput" placeholder="Type in here..."></textarea>
+      <label id="showFontNameLabel" for="showFontName"><code>Show/Hide FontName</code></label>
+      <input type="checkbox" id="showFontName">
+      <div id="outputs"><!-- Outputs will be added here --></div>
+    </div>
+
+    <footer>
+      <p>Made by <a href="https://pkucuipy.github.io" target="_blank">PkuCuipy</a></p>
+      <p>Last Update: 2024/06/19</p>
+    </footer>
+  </body>
+
+  <script>
+    const fonts = [
+      "Serif.normal", "Serif.bold", "Serif.italic", "Serif.boldItalic", 
+      "Sans.normal", "Sans.bold", "Sans.italic", "Sans.boldItalic", "Calligraphy.normal", "Calligraphy.bold", 
+      "Fraktur.normal", "Fraktur.bold", "Monospace.normal", "Blackboard.normal"
+    ];
+    const fontNameToID = (() => {
+      const fontNameToIDDict = {};
+      for (const [id, font] of fonts.entries()) {
+        fontNameToIDDict[font] = id;
+      }
+      return (fontName) => fontNameToIDDict[fontName];
+    })();
+
+    const chars = [
+      "A𝐀𝐴𝑨𝖠𝗔𝘈𝘼𝒜𝓐𝔄𝕬𝙰𝔸", "B𝐁𝐵𝑩𝖡𝗕𝘉𝘽ℬ𝓑𝔅𝕭𝙱𝔹", "C𝐂𝐶𝑪𝖢𝗖𝘊𝘾𝒞𝓒ℭ𝕮𝙲ℂ", "D𝐃𝐷𝑫𝖣𝗗𝘋𝘿𝒟𝓓𝔇𝕯𝙳𝔻", "E𝐄𝐸𝑬𝖤𝗘𝘌𝙀ℰ𝓔𝔈𝕰𝙴𝔼", 
+      "F𝐅𝐹𝑭𝖥𝗙𝘍𝙁ℱ𝓕𝔉𝕱𝙵𝔽", "G𝐆𝐺𝑮𝖦𝗚𝘎𝙂𝒢𝓖𝔊𝕲𝙶𝔾", "H𝐇𝐻𝑯𝖧𝗛𝘏𝙃ℋ𝓗ℌ𝕳𝙷ℍ", "I𝐈𝐼𝑰𝖨𝗜𝘐𝙄ℐ𝓘ℑ𝕴𝙸𝕀", "J𝐉𝐽𝑱𝖩𝗝𝘑𝙅𝒥𝓙𝔍𝕵𝙹𝕁", 
+      "K𝐊𝐾𝑲𝖪𝗞𝘒𝙆𝒦𝓚𝔎𝕶𝙺𝕂", "L𝐋𝐿𝑳𝖫𝗟𝘓𝙇ℒ𝓛𝔏𝕷𝙻𝕃", "M𝐌𝑀𝑴𝖬𝗠𝘔𝙈ℳ𝓜𝔐𝕸𝙼𝕄", "N𝐍𝑁𝑵𝖭𝗡𝘕𝙉𝒩𝓝𝔑𝕹𝙽ℕ", 
+      "O𝐎𝑂𝑶𝖮𝗢𝘖𝙊𝒪𝓞𝔒𝕺𝙾𝕆", "P𝐏𝑃𝑷𝖯𝗣𝘗𝙋𝒫𝓟𝔓𝕻𝙿ℙ", "Q𝐐𝑄𝑸𝖰𝗤𝘘𝙌𝒬𝓠𝔔𝕼𝚀ℚ", "R𝐑𝑅𝑹𝖱𝗥𝘙𝙍ℛ𝓡ℜ𝕽𝚁ℝ", 
+      "S𝐒𝑆𝑺𝖲𝗦𝘚𝙎𝒮𝓢𝔖𝕾𝚂𝕊", "T𝐓𝑇𝑻𝖳𝗧𝘛𝙏𝒯𝓣𝔗𝕿𝚃𝕋", "U𝐔𝑈𝑼𝖴𝗨𝘜𝙐𝒰𝓤𝔘𝖀𝚄𝕌", "V𝐕𝑉𝑽𝖵𝗩𝘝𝙑𝒱𝓥𝔙𝖁𝚅𝕍", 
+      "W𝐖𝑊𝑾𝖶𝗪𝘞𝙒𝒲𝓦𝔚𝖂𝚆𝕎", "X𝐗𝑋𝑿𝖷𝗫𝘟𝙓𝒳𝓧𝔛𝖃𝚇𝕏", "Y𝐘𝑌𝒀𝖸𝗬𝘠𝙔𝒴𝓨𝔜𝖄𝚈𝕐", "Z𝐙𝑍𝒁𝖹𝗭𝘡𝙕𝒵𝓩ℨ𝖅𝚉ℤ", 
+      "a𝐚𝑎𝒂𝖺𝗮𝘢𝙖𝒶𝓪𝔞𝖆𝚊𝕒", "b𝐛𝑏𝒃𝖻𝗯𝘣𝙗𝒷𝓫𝔟𝖇𝚋𝕓", "c𝐜𝑐𝒄𝖼𝗰𝘤𝙘𝒸𝓬𝔠𝖈𝚌𝕔", "d𝐝𝑑𝒅𝖽𝗱𝘥𝙙𝒹𝓭𝔡𝖉𝚍𝕕", "e𝐞𝑒𝒆𝖾𝗲𝘦𝙚ℯ𝓮𝔢𝖊𝚎𝕖", 
+      "f𝐟𝑓𝒇𝖿𝗳𝘧𝙛𝒻𝓯𝔣𝖋𝚏𝕗", "g𝐠𝑔𝒈𝗀𝗴𝘨𝙜ℊ𝓰𝔤𝖌𝚐𝕘", "h𝐡ℎ𝒉𝗁𝗵𝘩𝙝𝒽𝓱𝔥𝖍𝚑𝕙", "i𝐢𝑖𝒊𝗂𝗶𝘪𝙞𝒾𝓲𝔦𝖎𝚒𝕚", "j𝐣𝑗𝒋𝗃𝗷𝘫𝙟𝒿𝓳𝔧𝖏𝚓𝕛", "k𝐤𝑘𝒌𝗄𝗸𝘬𝙠𝓀𝓴𝔨𝖐𝚔𝕜", 
+      "l𝐥𝑙𝒍𝗅𝗹𝘭𝙡𝓁𝓵𝔩𝖑𝚕𝕝", "m𝐦𝑚𝒎𝗆𝗺𝘮𝙢𝓂𝓶𝔪𝖒𝚖𝕞", "n𝐧𝑛𝒏𝗇𝗻𝘯𝙣𝓃𝓷𝔫𝖓𝚗𝕟", "o𝐨𝑜𝒐𝗈𝗼𝘰𝙤ℴ𝓸𝔬𝖔𝚘𝕠", "p𝐩𝑝𝒑𝗉𝗽𝘱𝙥𝓅𝓹𝔭𝖕𝚙𝕡", 
+      "q𝐪𝑞𝒒𝗊𝗾𝘲𝙦𝓆𝓺𝔮𝖖𝚚𝕢", "r𝐫𝑟𝒓𝗋𝗿𝘳𝙧𝓇𝓻𝔯𝖗𝚛𝕣", "s𝐬𝑠𝒔𝗌𝘀𝘴𝙨𝓈𝓼𝔰𝖘𝚜𝕤", "t𝐭𝑡𝒕𝗍𝘁𝘵𝙩𝓉𝓽𝔱𝖙𝚝𝕥", "u𝐮𝑢𝒖𝗎𝘂𝘶𝙪𝓊𝓾𝔲𝖚𝚞𝕦", "v𝐯𝑣𝒗𝗏𝘃𝘷𝙫𝓋𝓿𝔳𝖛𝚟𝕧", 
+      "w𝐰𝑤𝒘𝗐𝘄𝘸𝙬𝓌𝔀𝔴𝖜𝚠𝕨", "x𝐱𝑥𝒙𝗑𝘅𝘹𝙭𝓍𝔁𝔵𝖝𝚡𝕩", "y𝐲𝑦𝒚𝗒𝘆𝘺𝙮𝓎𝔂𝔶𝖞𝚢𝕪", "z𝐳𝑧𝒛𝗓𝘇𝘻𝙯𝓏𝔃𝔷𝖟𝚣𝕫", "              ", 
+      "0𝟎0𝟎𝟢𝟬𝟢𝟬0𝟎0𝟎𝟶𝟘", "1𝟏1𝟏𝟣𝟭𝟣𝟭1𝟏1𝟏𝟷𝟙", "2𝟐2𝟐𝟤𝟮𝟤𝟮2𝟐2𝟐𝟸𝟚", "3𝟑3𝟑𝟥𝟯𝟥𝟯3𝟑3𝟑𝟹𝟛", "4𝟒4𝟒𝟦𝟰𝟦𝟰4𝟒4𝟒𝟺𝟜", 
+      "5𝟓5𝟓𝟧𝟱𝟧𝟱5𝟓5𝟓𝟻𝟝", "6𝟔6𝟔𝟨𝟲𝟨𝟲6𝟔6𝟔𝟼𝟞", "7𝟕7𝟕𝟩𝟳𝟩𝟳7𝟕7𝟕𝟽𝟟", "8𝟖8𝟖𝟪𝟴𝟪𝟴8𝟖8𝟖𝟾𝟠", "9𝟗9𝟗𝟫𝟵𝟫𝟵9𝟗9𝟗𝟿𝟡"
+    ].map(line => Array.from(line));
+
+    const charToID = (() => {
+      const charToIdDict = {};
+      for (const [id, line] of chars.entries()) {
+        for (const char of Array.from(line)) {
+          charToIdDict[char] = id;
+        }
+      }
+      return (char) => charToIdDict[char];
+    })();
+
+    const charToCharWithFont = (char, fontID) => {
+      const charID = charToID(char);
+      if (charID === undefined) return char;
+      return chars[charID][fontID];
+    }
+
+    const textToTextWithFont = (text, fontID) => {
+      return Array.from(text).map(char => charToCharWithFont(char, fontID)).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const textInput = document.getElementById("textInput");
+      const outputs = document.getElementById("outputs");
+
+      textInput.addEventListener("input", () => {
+        const currText = textInput.value;
+        textInput.value = textToTextWithFont(currText, 0); // normalize text to Serif.normal
+        outputs.innerHTML = ""; // Clear previous outputs
+
+        fonts.forEach((font, fontID) => {
+          const formattedText = textToTextWithFont(currText || "\n", fontID);
+          const div = document.createElement("div");
+          div.className = "output";
+          div.setAttribute("data-font", font.split(".").join(" "));
+          div.textContent = formattedText;
+          outputs.appendChild(div);
+        });
+      });
+
+      // Set initial text
+      textInput.value = "A QUICK BROWN FOX JUMPS OVER THE LAZY DOG. \na quick brown fox jumps over the lazy dog. \n0123456789";
+      textInput.value = "A quick brown fox jumps over the lazy dog";
+
+      // Trigger input event to format initial text
+      textInput.dispatchEvent(new Event("input")); 
+    });
+  </script>
+  
+</html>
