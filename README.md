@@ -1,9 +1,11 @@
-# fonting-with-unicode
+## Fonting with Unicode
 
 Styling texts with Unicode mathematical alphanumeric symbols.
 
-## Example
-**Input Text:**
+Link: https://pkucuipy.github.io/fonting-with-unicode
+
+### Example
+**Plain-Text Input:**
 
 - A quick brown fox jumps over the lazy dog.
 
@@ -23,5 +25,5 @@ Styling texts with Unicode mathematical alphanumeric symbols.
 - 𝙰 𝚚𝚞𝚒𝚌𝚔 𝚋𝚛𝚘𝚠𝚗 𝚏𝚘𝚡 𝚓𝚞𝚖𝚙𝚜 𝚘𝚟𝚎𝚛 𝚝𝚑𝚎 𝚕𝚊𝚣𝚢 𝚍𝚘𝚐.
 - 𝔸 𝕢𝕦𝕚𝕔𝕜 𝕓𝕣𝕠𝕨𝕟 𝕗𝕠𝕩 𝕛𝕦𝕞𝕡𝕤 𝕠𝕧𝕖𝕣 𝕥𝕙𝕖 𝕝𝕒𝕫𝕪 𝕕𝕠𝕘.
 
-## Reference
+### Reference
 - [Unicode Math Alphanumeric Symbols](https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols)
