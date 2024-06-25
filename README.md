@@ -1,5 +1,7 @@
 ## Fonting with Unicode
 
+https://pkucuipy.github.io/fonting-with-unicode/
+
 Transforms your input text into various stylized Unicode fonts. 
 
 ### Font Supported
@@ -14,7 +16,7 @@ Transforms your input text into various stylized Unicode fonts.
 
 
 ### How to Use
-1. **Access the Tool**: [Fonting with Unicode](https://fonting-with-unicode.netlify.app/).
+1. **Access the Tool**: [Fonting with Unicode](https://pkucuipy.github.io/fonting-with-unicode/)
 2. **Input Your Text**: Type or paste the text you want to style into the input field.
 3. **Select Styles**: The text will be automatically displayed in various Unicode font styles.
 4. **Copy Styled Text**: Select styled text and copy it to your clipboard.
